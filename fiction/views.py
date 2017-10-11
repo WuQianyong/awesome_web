@@ -39,7 +39,7 @@ class IndexView(ListView):
     model = Post
     template_name = 'web/index.html'
     context_object_name = 'post_list'
-    paginate_by = 2
+    paginate_by = 20
 
     def get_context_data(self, **kwargs):
         # 首先或的父类生成的传递给模板的字典
