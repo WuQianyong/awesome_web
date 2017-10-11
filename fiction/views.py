@@ -15,29 +15,30 @@ from django.utils.text import slugify
 from markdown.extensions.toc import TocExtension
 from django.db.models import Q
 
-# def index(request):
-#     # return HttpResponse('欢迎')
-#     return render(request, 'web/index.html',
-#                   context={
-#                       'title': '我的博客首页',
-#                       'welcome': '欢迎访问我的博客首页'
-#                   }
-#                   )
+def index(request):
+    # return HttpResponse('欢迎')
+    return render(request,'index.html')
+    # return render(request, 'web/fiction.html',
+    #               context={
+    #                   'title': '我的博客首页',
+    #                   'welcome': '欢迎访问我的博客首页'
+    #               }
+    #               )
 
 def search(request):
     q = request.GET.get('q')
     error_msg = ''
     if not q:
         error_msg = '请输入关键字'
-        return render(request, 'web/index.html', {'error_msg': error_msg})
+        return render(request, 'web/fiction.html', {'error_msg': error_msg})
 
     post_list = Post.objects.filter(Q(title__icontains=q) | Q(body__icontains=q))
-    return render(request, 'web/index.html', {'error_msg': error_msg,
+    return render(request, 'web/fiction.html', {'error_msg': error_msg,
                                                'post_list': post_list})
 
-class IndexView(ListView):
+class FictionView(ListView):
     model = Post
-    template_name = 'web/index.html'
+    template_name = 'web/fiction.html'
     context_object_name = 'post_list'
     paginate_by = 20
 
@@ -45,8 +46,8 @@ class IndexView(ListView):
         # 首先或的父类生成的传递给模板的字典
         context = super().get_context_data(**kwargs)
 
-        print(context)
-        print('1----------------------')
+        # print(context)
+        # print('1----------------------')
         # print(context)
         paginator = context.get('paginator')
 
@@ -57,7 +58,7 @@ class IndexView(ListView):
         print(pagination_data)
         # 将分页导航条的模板变量更新到 context 中，注意 pagination_data 方法返回的也是一个字典。
         context.update(pagination_data)
-        print(context)
+        # print(context)
         # print(context)
         # 将更新后的 context 返回，以便 ListView 使用这个字典中的模板变量去渲染模板。
         # 注意此时 context 字典中已有了显示分页导航条所需的数据。
@@ -99,7 +100,7 @@ class IndexView(ListView):
             # 此时只要获取当前页右边的连续页码号，
             # 比如分页页码列表是 [1, 2, 3, 4]，那么获取的就是 right = [2, 3]。
             # 注意这里只获取了当前页码后连续两个页码，你可以更改这个数字以获取更多页码。
-            right = page_range[page_number:page_number + 2]
+            right = page_range[page_number:page_number + 5]
 
             # 如果最右边的页码号比最后一页的页码号减去 1 还要小，
             # 说明最右边的页码号和最后一页的页码号之间还有其它页码，因此需要显示省略号，通过 right_has_more 来指示。
@@ -111,7 +112,7 @@ class IndexView(ListView):
             # 此时只要获取当前页左边的连续页码号。
             # 比如分页页码列表是 [1, 2, 3, 4]，那么获取的就是 left = [2, 3]
             # 这里只获取了当前页码后连续两个页码，你可以更改这个数字以获取更多页码。
-            left = page_range[(page_number - 3) if (page_number - 3) > 0 else 0:page_number - 1]
+            left = page_range[(page_number - 5) if (page_number - 5) > 0 else 0:page_number - 1]
 
             # 如果最左边的页码号比第 2 页页码号还大，
             # 说明最左边的页码号和第 1 页的页码号之间还有其它页码，因此需要显示省略号，通过 left_has_more 来指示。
@@ -125,8 +126,8 @@ class IndexView(ListView):
         else:
             # 用户请求的既不是最后一页，也不是第 1 页，则需要获取当前页左右两边的连续页码号，
             # 这里只获取了当前页码前后连续两个页码，你可以更改这个数字以获取更多页码。
-            left = page_range[(page_number - 3) if (page_number - 3) > 0 else 0:page_number - 1]
-            right = page_range[page_number:page_number + 3]
+            left = page_range[(page_number - 5) if (page_number -5) > 0 else 0:page_number - 1]
+            right = page_range[page_number:page_number + 5]
 
             # 是否需要显示最后一页和最后一页前的省略号
             if right[-1] < total_pages - 1:
@@ -152,9 +153,9 @@ class IndexView(ListView):
 
 
 # class CategoryView(ListView):
-class CategoryView(IndexView):
+class CategoryView(FictionView):
     # model = Post
-    # template_name = 'blog/index.html'
+    # template_name = 'blog/fiction.html'
     # context_object_name = 'post_list'
 
     def get_queryset(self):
@@ -162,7 +163,7 @@ class CategoryView(IndexView):
         return super(CategoryView, self).get_queryset().filter(category=cate)
 
 
-class ArchivesView(IndexView):
+class ArchivesView(FictionView):
     def get_queryset(self):
         year = self.kwargs.get('year')
         month = self.kwargs.get('month')
@@ -171,12 +172,12 @@ class ArchivesView(IndexView):
                                                                )
 
 
-class TagView(ListView):
+class TagView(FictionView):
     """
     标签视图 函数
     """
     model = Post
-    template_name = 'web/index.html'
+    template_name = 'web/fiction.html'
     context_object_name = 'post_list'
 
     def get_queryset(self):
@@ -188,7 +189,7 @@ class TagView(ListView):
 # def index(request):
 #     # return HttpResponse('欢迎访问我的博客首页')
 #     post_list = Post.objects.all().order_by('-created_time')
-#     return render(request, 'blog/index.html', context={
+#     return render(request, 'blog/fiction.html', context={
 #         'post_list': post_list,
 #
 #     })
